@@ -1,5 +1,6 @@
 package tests;
 
+import models.login.BlankLoginBodyModelResponse;
 import models.login.LoginBodyModel;
 import models.login.SuccessfulLoginResponseModel;
 import models.login.WrongCredentialsLoginResponseModel;
@@ -33,7 +34,55 @@ public class LoginTests extends TestBase {
         String actualDetailError = loginResponse.detail();
         assertThat(actualDetailError).isEqualTo(expectedDetailError);
     }
+// todo add more negative tests
 
-    // todo add more negative tests
+    @Test
+    public void loginFieldsNotBeBlank() {
 
+        LoginBodyModel registrationData =
+                new LoginBodyModel("", "");
+
+        BlankLoginBodyModelResponse response = api.auth.loginBlankCredentials(registrationData);
+
+        assertThat(response.getUsername()).containsExactly(LOGIN_BLANK_ERROR);
+        assertThat(response.getPassword()).containsExactly(LOGIN_BLANK_ERROR);
+    }
+
+    @Test
+    public void loginUserNameNotBeBlank() {
+
+        LoginBodyModel registrationData =
+                new LoginBodyModel("", null);
+
+        BlankLoginBodyModelResponse response = api.auth.loginBlankCredentials(registrationData);
+
+        assertThat(response.getUsername()).containsExactly(LOGIN_BLANK_ERROR);
+        assertThat(response.getPassword()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
+    }
+
+    @Test
+    public void loginPasswordNotBeBlank() {
+
+        LoginBodyModel registrationData =
+                new  LoginBodyModel(null, "");
+
+        BlankLoginBodyModelResponse response = api.auth.LoginCredentialsPasswordRegistrationResponseSpec(registrationData);
+
+        assertThat(response.getUsername()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
+        assertThat(response.getPassword()).containsExactly(LOGIN_BLANK_ERROR);
+    }
+
+    @Test
+    public void loginFieldsIsNull() {
+
+        LoginBodyModel registrationData =
+                new  LoginBodyModel(null, null);
+
+        BlankLoginBodyModelResponse response = api.auth.FieldsIsNullLoginResponseSpec(registrationData);
+
+        assertThat(response.getUsername()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
+        assertThat(response.getPassword()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
+
+    }
 }
+

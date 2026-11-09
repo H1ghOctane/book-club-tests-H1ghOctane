@@ -7,12 +7,11 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
-@Accessors(fluent = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class BlankLoginBodyResponseModel {
+public class BlankLoginBodyModelResponse {
     private List<String> username;
     private List<String> password;
 }

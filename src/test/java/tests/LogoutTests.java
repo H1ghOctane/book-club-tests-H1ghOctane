@@ -17,7 +17,9 @@ public class LogoutTests extends TestBase {
         LogoutBodyModel logoutData = new LogoutBodyModel(refreshToken);
         api.auth.logout(logoutData);
     }
-
     // todo add more negative tests
+
+
+
 }
 

@@ -29,5 +29,39 @@ public class LoginSpec {
             .expectBody("detail", notNullValue())
             .build();
 
+    public static ResponseSpecification blankCredentialsLoginResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(400)
+            .expectBody(matchesJsonSchemaInClasspath(
+                    "schemas/login/blank-cred-schema.json"))
+            .expectBody("", notNullValue())
+            .expectBody("", notNullValue())
+            .build();
 
+    public static ResponseSpecification blankNameLoginResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(400)
+            .expectBody(matchesJsonSchemaInClasspath(
+                    "schemas/login/blank-cred-schema.json"))
+            .expectBody("", notNullValue())
+            .expectBody("", notNullValue())
+            .build();
+
+    public static ResponseSpecification blankPasswordLoginResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(400)
+            .expectBody(matchesJsonSchemaInClasspath(
+                    "schemas/login/blank-cred-schema.json"))
+            .expectBody("", notNullValue())
+            .expectBody("", notNullValue())
+            .build();
+
+    public static ResponseSpecification FieldsIsNullLoginResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(400)
+            .expectBody(matchesJsonSchemaInClasspath(
+                    "schemas/login/blank-cred-schema.json"))
+            .expectBody("", notNullValue())
+            .expectBody("", notNullValue())
+            .build();
 }
