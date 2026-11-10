@@ -1,16 +1,16 @@
 package api;
 
-import io.qameta.allure.Step;
 import models.login.BlankLoginBodyModelResponse;
 import models.login.LoginBodyModel;
 import models.login.SuccessfulLoginResponseModel;
 import models.login.WrongCredentialsLoginResponseModel;
+import models.logout.BlankRefreshLogoutResponseModel;
+import models.logout.InvalidTokenLogoutResponseModel;
 import models.logout.LogoutBodyModel;
 
 import static io.restassured.RestAssured.given;
 import static specs.login.LoginSpec.*;
-import static specs.logout.LogoutSpec.logoutRequestSpec;
-import static specs.logout.LogoutSpec.successfulLogoutResponseSpec;
+import static specs.logout.LogoutSpec.*;
 
 public class AuthApiClient {
 
@@ -25,7 +25,6 @@ public class AuthApiClient {
                 .as(SuccessfulLoginResponseModel.class);
     }
 
-    @Step("Авторизация и получение токена")
     public String loginAndGetRefreshToken(LoginBodyModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
@@ -35,16 +34,6 @@ public class AuthApiClient {
                 .spec(successfulLoginResponseSpec)
                 .extract()
                 .path("refresh");
-    }
-
-    @Step("Отправка запроса logout")
-    public void logout(LogoutBodyModel logoutBody) {
-        given(logoutRequestSpec)
-                .body(logoutBody)
-                .when()
-                .post("/auth/logout/")
-                .then()
-                .spec(successfulLogoutResponseSpec);
     }
 
     public WrongCredentialsLoginResponseModel loginWrongCredentials(LoginBodyModel loginBody) {
@@ -89,6 +78,37 @@ public class AuthApiClient {
                 .spec(FieldsIsNullLoginResponseSpec)
                 .extract()
                 .as(BlankLoginBodyModelResponse.class);
+    }
+
+    public void logout(LogoutBodyModel logoutBody) {
+        given(logoutRequestSpec)
+                .body(logoutBody)
+                .when()
+                .post("/auth/logout/")
+                .then()
+                .spec(successfulLogoutResponseSpec);
+    }
+
+    public InvalidTokenLogoutResponseModel logoutWithInvalidToken(LogoutBodyModel logoutBody) {
+        return given(logoutRequestSpec)
+                .body(logoutBody)
+                .when()
+                .post("/auth/logout/")
+                .then()
+                .spec(invalidTokenLogoutResponseSpec)
+                .extract()
+                .as(InvalidTokenLogoutResponseModel.class);
+    }
+
+    public BlankRefreshLogoutResponseModel logoutWithBlankToken(LogoutBodyModel logoutBody) {
+        return given(logoutRequestSpec)
+                .body(logoutBody)
+                .when()
+                .post("/auth/logout/")
+                .then()
+                .spec(blankRefreshLogoutResponseSpec)
+                .extract()
+                .as(BlankRefreshLogoutResponseModel.class);
     }
 }
 

@@ -34,6 +34,7 @@ public class LoginTests extends TestBase {
         String actualDetailError = loginResponse.detail();
         assertThat(actualDetailError).isEqualTo(expectedDetailError);
     }
+
 // todo add more negative tests
 
     @Test
