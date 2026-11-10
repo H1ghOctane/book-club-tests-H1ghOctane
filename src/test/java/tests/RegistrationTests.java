@@ -63,9 +63,9 @@ public class RegistrationTests extends TestBase {
 
         BlankCredentialsResponseModel response = api.users.registerFullBlankCredentials(registrationData);
 
-        assertThat(response.username().get(0))
+        assertThat(response.getUsername().get(0))
                 .isEqualTo(REGISTRATION_BLANK_ERROR);
-        assertThat(response.password().get(0))
+        assertThat(response.getPassword().get(0))
                 .isEqualTo(REGISTRATION_BLANK_ERROR);
     }
 
@@ -77,9 +77,9 @@ public class RegistrationTests extends TestBase {
 
         BlankCredentialsResponseModel response = api.users.registerBlankNameCredentials(registrationData);
 
-        assertThat(response.username().get(0))
+        assertThat(response.getUsername().get(0))
                 .isEqualTo(REGISTRATION_BLANK_ERROR);
-        assertThat(response.password().get(0))
+        assertThat(response.getPassword().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
     }
 
@@ -91,9 +91,9 @@ public class RegistrationTests extends TestBase {
 
         BlankCredentialsResponseModel response = api.users.blankCredentialsPasswordRegistrationResponseSpec(registrationData);
 
-        assertThat(response.username().get(0))
+        assertThat(response.getUsername().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
-        assertThat(response.password().get(0))
+        assertThat(response.getPassword().get(0))
                 .isEqualTo(REGISTRATION_BLANK_ERROR);
     }
 
@@ -105,9 +105,9 @@ public class RegistrationTests extends TestBase {
 
         BlankCredentialsResponseModel response = api.users.fieldsIsNullRegistrationResponseSpec(registrationData);
 
-        assertThat(response.username().get(0))
+        assertThat(response.getUsername().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
-        assertThat(response.password().get(0))
+        assertThat(response.getPassword().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
     }
 
