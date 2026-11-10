@@ -58,7 +58,7 @@ public class AuthApiClient {
                 .as(BlankLoginBodyModelResponse.class);
     }
 
-    public BlankLoginBodyModelResponse LoginCredentialsPasswordRegistrationResponseSpec(LoginBodyModel loginBody) {
+    public BlankLoginBodyModelResponse loginCredentialsPasswordRegistrationResponseSpec(LoginBodyModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
                 .when()
@@ -69,13 +69,13 @@ public class AuthApiClient {
                 .as(BlankLoginBodyModelResponse.class);
     }
 
-    public BlankLoginBodyModelResponse FieldsIsNullLoginResponseSpec(LoginBodyModel loginBody) {
+    public BlankLoginBodyModelResponse fieldsIsNullLoginResponseSpec(LoginBodyModel loginBody) {
         return given(loginRequestSpec)
                 .body(loginBody)
                 .when()
                 .post("/auth/token/")
                 .then()
-                .spec(FieldsIsNullLoginResponseSpec)
+                .spec(fieldsIsNullLoginResponseSpec)
                 .extract()
                 .as(BlankLoginBodyModelResponse.class);
     }

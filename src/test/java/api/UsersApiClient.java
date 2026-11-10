@@ -65,7 +65,7 @@ public class UsersApiClient {
                 .as(BlankCredentialsResponseModel.class);
     }
 
-    public BlankCredentialsResponseModel BlankCredentialsPasswordRegistrationResponseSpec(RegistrationBodyModel body) {
+    public BlankCredentialsResponseModel blankCredentialsPasswordRegistrationResponseSpec(RegistrationBodyModel body) {
         return given()
                 .spec(BaseSpec.baseRequestSpec)
                 .body(body)
@@ -77,7 +77,7 @@ public class UsersApiClient {
                 .as(BlankCredentialsResponseModel.class);
     }
 
-    public BlankCredentialsResponseModel FieldsIsNullRegistrationResponseSpec (RegistrationBodyModel body) {
+    public BlankCredentialsResponseModel fieldsIsNullRegistrationResponseSpec (RegistrationBodyModel body) {
         return given()
                 .spec(BaseSpec.baseRequestSpec)
                 .body(body)

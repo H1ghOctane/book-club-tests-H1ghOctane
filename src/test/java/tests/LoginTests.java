@@ -35,8 +35,6 @@ public class LoginTests extends TestBase {
         assertThat(actualDetailError).isEqualTo(expectedDetailError);
     }
 
-// todo add more negative tests
-
     @Test
     public void loginFieldsNotBeBlank() {
 
@@ -67,7 +65,7 @@ public class LoginTests extends TestBase {
         LoginBodyModel registrationData =
                 new  LoginBodyModel(null, "");
 
-        BlankLoginBodyModelResponse response = api.auth.LoginCredentialsPasswordRegistrationResponseSpec(registrationData);
+        BlankLoginBodyModelResponse response = api.auth.loginCredentialsPasswordRegistrationResponseSpec(registrationData);
 
         assertThat(response.getUsername()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
         assertThat(response.getPassword()).containsExactly(LOGIN_BLANK_ERROR);
@@ -79,7 +77,7 @@ public class LoginTests extends TestBase {
         LoginBodyModel registrationData =
                 new  LoginBodyModel(null, null);
 
-        BlankLoginBodyModelResponse response = api.auth.FieldsIsNullLoginResponseSpec(registrationData);
+        BlankLoginBodyModelResponse response = api.auth.fieldsIsNullLoginResponseSpec(registrationData);
 
         assertThat(response.getUsername()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);
         assertThat(response.getPassword()).containsExactly(LOGIN_FIELD_IS_NULL_ERROR);

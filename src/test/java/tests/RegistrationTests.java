@@ -55,8 +55,6 @@ public class RegistrationTests extends TestBase {
         assertThat(actualError).isEqualTo(expectedError);
     }
 
-    // todo add more negative tests
-
     @Test
     public void registrationFieldsNotBeBlank() {
 
@@ -91,7 +89,7 @@ public class RegistrationTests extends TestBase {
         RegistrationBodyModel registrationData =
                 new RegistrationBodyModel(null, "");
 
-        BlankCredentialsResponseModel response = api.users.BlankCredentialsPasswordRegistrationResponseSpec(registrationData);
+        BlankCredentialsResponseModel response = api.users.blankCredentialsPasswordRegistrationResponseSpec(registrationData);
 
         assertThat(response.username().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
@@ -105,7 +103,7 @@ public class RegistrationTests extends TestBase {
         RegistrationBodyModel registrationData =
                 new RegistrationBodyModel(null, null);
 
-        BlankCredentialsResponseModel response = api.users.FieldsIsNullRegistrationResponseSpec(registrationData);
+        BlankCredentialsResponseModel response = api.users.fieldsIsNullRegistrationResponseSpec(registrationData);
 
         assertThat(response.username().get(0))
                 .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
