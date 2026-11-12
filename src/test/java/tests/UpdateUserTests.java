@@ -10,6 +10,7 @@ import models.user.UserResponseModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tests.TestData.*;
 
@@ -28,10 +29,12 @@ public class UpdateUserTests extends TestBase {
         email = username + "@example.com";
 
         SuccessfulRegistrationResponseModel registrationResponse =
-                api.users.register(new RegistrationBodyModel(username, password));
+                step("Регистрируем нового пользователя", () ->
+                        api.users.register(new RegistrationBodyModel(username, password)));
         userId = registrationResponse.id();
 
-        accessToken = api.auth.login(new LoginBodyModel(username, password)).access();
+        accessToken = step("Авторизуемся и получаем access-токен", () ->
+                api.auth.login(new LoginBodyModel(username, password)).access());
     }
 
     @Test
@@ -40,13 +43,17 @@ public class UpdateUserTests extends TestBase {
         UpdateUserBodyModel updateData =
                 new UpdateUserBodyModel(newUsername, UPDATE_FIRST_NAME, UPDATE_LAST_NAME, email);
 
-        UserResponseModel updateResponse = api.users.putUser(updateData, accessToken);
+        UserResponseModel updateResponse =
+                step("Обновляем все поля профиля через PUT", () ->
+                        api.users.putUser(updateData, accessToken));
 
-        assertThat(updateResponse.id()).isEqualTo(userId);
-        assertThat(updateResponse.username()).isEqualTo(newUsername);
-        assertThat(updateResponse.firstName()).isEqualTo(UPDATE_FIRST_NAME);
-        assertThat(updateResponse.lastName()).isEqualTo(UPDATE_LAST_NAME);
-        assertThat(updateResponse.email()).isEqualTo(email);
+        step("Проверяем, что все поля обновились", () -> {
+            assertThat(updateResponse.id()).isEqualTo(userId);
+            assertThat(updateResponse.username()).isEqualTo(newUsername);
+            assertThat(updateResponse.firstName()).isEqualTo(UPDATE_FIRST_NAME);
+            assertThat(updateResponse.lastName()).isEqualTo(UPDATE_LAST_NAME);
+            assertThat(updateResponse.email()).isEqualTo(email);
+        });
     }
 
     @Test
@@ -55,9 +62,11 @@ public class UpdateUserTests extends TestBase {
                 new UpdateUserBodyModel(null, UPDATE_FIRST_NAME, UPDATE_LAST_NAME, email);
 
         UpdateUserErrorResponseModel errorResponse =
-                api.users.putUserWithValidationError(updateData, accessToken);
+                step("Обновляем профиль через PUT без обязательного username", () ->
+                        api.users.putUserWithValidationError(updateData, accessToken));
 
-        assertThat(errorResponse.username()).containsExactly(UPDATE_REQUIRED_FIELD_ERROR);
+        step("Проверяем ошибку «обязательное поле»", () ->
+                assertThat(errorResponse.username()).containsExactly(UPDATE_REQUIRED_FIELD_ERROR));
     }
 
     @Test
@@ -66,36 +75,47 @@ public class UpdateUserTests extends TestBase {
                 new UpdateUserBodyModel("", UPDATE_FIRST_NAME, UPDATE_LAST_NAME, email);
 
         UpdateUserErrorResponseModel errorResponse =
-                api.users.putUserWithValidationError(updateData, accessToken);
+                step("Обновляем профиль через PUT с пустым username", () ->
+                        api.users.putUserWithValidationError(updateData, accessToken));
 
-        assertThat(errorResponse.username()).containsExactly(UPDATE_BLANK_FIELD_ERROR);
+        step("Проверяем ошибку «поле не может быть пустым»", () ->
+                assertThat(errorResponse.username()).containsExactly(UPDATE_BLANK_FIELD_ERROR));
     }
-
-    // ---------- PATCH: можно передать только часть полей ----------
 
     @Test
     public void successfulPatchFirstNameTest() {
         UpdateUserBodyModel updateData = UpdateUserBodyModel.firstNameOnly(UPDATE_FIRST_NAME);
 
-        UserResponseModel updateResponse = api.users.patchUser(updateData, accessToken);
+        UserResponseModel updateResponse =
+                step("Обновляем только firstName через PATCH", () ->
+                        api.users.patchUser(updateData, accessToken));
 
-        assertThat(updateResponse.id()).isEqualTo(userId);
-        assertThat(updateResponse.firstName()).isEqualTo(UPDATE_FIRST_NAME);
-        // остальные поля не изменились
-        assertThat(updateResponse.username()).isEqualTo(username);
-        assertThat(updateResponse.lastName()).isEmpty();
-        assertThat(updateResponse.email()).isEmpty();
+        step("Проверяем, что firstName обновился", () -> {
+            assertThat(updateResponse.id()).isEqualTo(userId);
+            assertThat(updateResponse.firstName()).isEqualTo(UPDATE_FIRST_NAME);
+        });
+
+        step("Проверяем, что остальные поля не изменились", () -> {
+            assertThat(updateResponse.username()).isEqualTo(username);
+            assertThat(updateResponse.lastName()).isEmpty();
+            assertThat(updateResponse.email()).isEmpty();
+        });
     }
 
     @Test
     public void patchChangesArePersistedTest() {
-        api.users.patchUser(UpdateUserBodyModel.emailOnly(email), accessToken);
+        step("Обновляем email через PATCH", () ->
+                api.users.patchUser(UpdateUserBodyModel.emailOnly(email), accessToken));
 
-        UserResponseModel profile = api.users.getMe(accessToken);
+        UserResponseModel profile =
+                step("Получаем профиль через GET", () ->
+                        api.users.getMe(accessToken));
 
-        assertThat(profile.id()).isEqualTo(userId);
-        assertThat(profile.username()).isEqualTo(username);
-        assertThat(profile.email()).isEqualTo(email);
+        step("Проверяем, что новый email сохранился", () -> {
+            assertThat(profile.id()).isEqualTo(userId);
+            assertThat(profile.username()).isEqualTo(username);
+            assertThat(profile.email()).isEqualTo(email);
+        });
     }
 
     @Test
@@ -103,9 +123,11 @@ public class UpdateUserTests extends TestBase {
         UpdateUserBodyModel updateData = UpdateUserBodyModel.emailOnly(UPDATE_INVALID_EMAIL);
 
         UpdateUserErrorResponseModel errorResponse =
-                api.users.patchUserWithValidationError(updateData, accessToken);
+                step("Обновляем email через PATCH на некорректный", () ->
+                        api.users.patchUserWithValidationError(updateData, accessToken));
 
-        assertThat(errorResponse.email()).containsExactly(UPDATE_INVALID_EMAIL_ERROR);
+        step("Проверяем ошибку «некорректный email»", () ->
+                assertThat(errorResponse.email()).containsExactly(UPDATE_INVALID_EMAIL_ERROR));
     }
 
     @Test
@@ -113,18 +135,23 @@ public class UpdateUserTests extends TestBase {
         UpdateUserBodyModel updateData = UpdateUserBodyModel.usernameOnly(LOGIN_USERNAME);
 
         UpdateUserErrorResponseModel errorResponse =
-                api.users.patchUserWithValidationError(updateData, accessToken);
+                step("Меняем username через PATCH на уже занятый", () ->
+                        api.users.patchUserWithValidationError(updateData, accessToken));
 
-        assertThat(errorResponse.username()).containsExactly(REGISTRATION_EXISTING_USER_ERROR);
+        step("Проверяем ошибку «пользователь уже существует»", () ->
+                assertThat(errorResponse.username()).containsExactly(REGISTRATION_EXISTING_USER_ERROR));
     }
 
     @Test
     public void patchWithoutTokenTest() {
         UpdateUserBodyModel updateData = UpdateUserBodyModel.firstNameOnly(UPDATE_FIRST_NAME);
 
-        UnauthorizedUserResponseModel errorResponse = api.users.patchUserUnauthorized(updateData, null);
+        UnauthorizedUserResponseModel errorResponse =
+                step("Обновляем профиль через PATCH без токена", () ->
+                        api.users.patchUserUnauthorized(updateData, null));
 
-        assertThat(errorResponse.detail()).isEqualTo(UPDATE_NOT_AUTHENTICATED_ERROR);
+        step("Проверяем ошибку «не переданы данные авторизации»", () ->
+                assertThat(errorResponse.detail()).isEqualTo(UPDATE_NOT_AUTHENTICATED_ERROR));
     }
 
     @Test
@@ -132,9 +159,12 @@ public class UpdateUserTests extends TestBase {
         UpdateUserBodyModel updateData = UpdateUserBodyModel.firstNameOnly(UPDATE_FIRST_NAME);
 
         UnauthorizedUserResponseModel errorResponse =
-                api.users.patchUserUnauthorized(updateData, UPDATE_INVALID_ACCESS_TOKEN);
+                step("Обновляем профиль через PATCH с невалидным токеном", () ->
+                        api.users.patchUserUnauthorized(updateData, UPDATE_INVALID_ACCESS_TOKEN));
 
-        assertThat(errorResponse.detail()).isEqualTo(UPDATE_INVALID_TOKEN_ERROR);
-        assertThat(errorResponse.code()).isEqualTo(UPDATE_TOKEN_NOT_VALID_CODE);
+        step("Проверяем ошибку «токен невалиден»", () -> {
+            assertThat(errorResponse.detail()).isEqualTo(UPDATE_INVALID_TOKEN_ERROR);
+            assertThat(errorResponse.code()).isEqualTo(UPDATE_TOKEN_NOT_VALID_CODE);
+        });
     }
 }

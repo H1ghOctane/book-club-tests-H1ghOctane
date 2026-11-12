@@ -7,6 +7,7 @@ import models.registration.SuccessfulRegistrationResponseModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tests.TestData.*;
 
@@ -17,7 +18,7 @@ public class RegistrationTests extends TestBase {
 
     @BeforeEach
     public void prepareTestData() {
-        // оставляем генерацию данных в тесте, чтобы каждый запуск был с новыми пользователями
+        // генерируем данные в тесте, чтобы каждый запуск был с новыми пользователями
         username = "user_" + System.currentTimeMillis();
         password = "pass_" + System.currentTimeMillis();
     }
@@ -27,15 +28,19 @@ public class RegistrationTests extends TestBase {
         RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
         SuccessfulRegistrationResponseModel registrationResponse =
-                api.users.register(registrationData);
+                step("Регистрируем нового пользователя", () ->
+                        api.users.register(registrationData));
 
-        assertThat(registrationResponse.id()).isGreaterThan(0);
-        assertThat(registrationResponse.username()).isEqualTo(username);
-        assertThat(registrationResponse.firstName()).isEqualTo("");
-        assertThat(registrationResponse.lastName()).isEqualTo("");
-        assertThat(registrationResponse.email()).isEqualTo("");
+        step("Проверяем данные созданного пользователя", () -> {
+            assertThat(registrationResponse.id()).isGreaterThan(0);
+            assertThat(registrationResponse.username()).isEqualTo(username);
+            assertThat(registrationResponse.firstName()).isEqualTo("");
+            assertThat(registrationResponse.lastName()).isEqualTo("");
+            assertThat(registrationResponse.email()).isEqualTo("");
+        });
 
-        assertThat(registrationResponse.remoteAddr()).matches(REGISTRATION_IP_REGEXP);
+        step("Проверяем, что remoteAddr — корректный IP-адрес", () ->
+                assertThat(registrationResponse.remoteAddr()).matches(REGISTRATION_IP_REGEXP));
     }
 
     @Test
@@ -43,72 +48,74 @@ public class RegistrationTests extends TestBase {
         RegistrationBodyModel registrationData = new RegistrationBodyModel(username, password);
 
         SuccessfulRegistrationResponseModel firstRegistrationResponse =
-                api.users.register(registrationData);
+                step("Регистрируем нового пользователя", () ->
+                        api.users.register(registrationData));
 
-        assertThat(firstRegistrationResponse.username()).isEqualTo(username);
+        step("Проверяем, что пользователь создан", () ->
+                assertThat(firstRegistrationResponse.username()).isEqualTo(username));
 
         ExistingUserResponseModel secondRegistrationResponse =
-                api.users.registerExistingUser(registrationData);
+                step("Повторно регистрируем пользователя с тем же логином", () ->
+                        api.users.registerExistingUser(registrationData));
 
-        String expectedError = REGISTRATION_EXISTING_USER_ERROR;
-        String actualError = secondRegistrationResponse.username().get(0);
-        assertThat(actualError).isEqualTo(expectedError);
+        step("Проверяем ошибку «пользователь уже существует»", () ->
+                assertThat(secondRegistrationResponse.username())
+                        .containsExactly(REGISTRATION_EXISTING_USER_ERROR));
     }
 
     @Test
     public void registrationFieldsNotBeBlank() {
+        RegistrationBodyModel registrationData = new RegistrationBodyModel("", "");
 
-        RegistrationBodyModel registrationData =
-                new RegistrationBodyModel("", "");
+        BlankCredentialsResponseModel response =
+                step("Регистрируемся с пустыми логином и паролем", () ->
+                        api.users.registerFullBlankCredentials(registrationData));
 
-        BlankCredentialsResponseModel response = api.users.registerFullBlankCredentials(registrationData);
-
-        assertThat(response.getUsername().get(0))
-                .isEqualTo(REGISTRATION_BLANK_ERROR);
-        assertThat(response.getPassword().get(0))
-                .isEqualTo(REGISTRATION_BLANK_ERROR);
+        step("Проверяем ошибки «поле не может быть пустым» для логина и пароля", () -> {
+            assertThat(response.getUsername()).containsExactly(REGISTRATION_BLANK_ERROR);
+            assertThat(response.getPassword()).containsExactly(REGISTRATION_BLANK_ERROR);
+        });
     }
 
     @Test
     public void userNameNotBeBlank() {
+        RegistrationBodyModel registrationData = new RegistrationBodyModel("", null);
 
-        RegistrationBodyModel registrationData =
-                new RegistrationBodyModel("", null);
+        BlankCredentialsResponseModel response =
+                step("Регистрируемся с пустым логином и без пароля", () ->
+                        api.users.registerBlankNameCredentials(registrationData));
 
-        BlankCredentialsResponseModel response = api.users.registerBlankNameCredentials(registrationData);
-
-        assertThat(response.getUsername().get(0))
-                .isEqualTo(REGISTRATION_BLANK_ERROR);
-        assertThat(response.getPassword().get(0))
-                .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
+        step("Проверяем ошибки для логина и пароля", () -> {
+            assertThat(response.getUsername()).containsExactly(REGISTRATION_BLANK_ERROR);
+            assertThat(response.getPassword()).containsExactly(REGISTRATION_FIELD_IS_NULL_ERROR);
+        });
     }
 
     @Test
     public void userPasswordNotBeBlank() {
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(null, "");
 
-        RegistrationBodyModel registrationData =
-                new RegistrationBodyModel(null, "");
+        BlankCredentialsResponseModel response =
+                step("Регистрируемся без логина и с пустым паролем", () ->
+                        api.users.blankCredentialsPasswordRegistrationResponseSpec(registrationData));
 
-        BlankCredentialsResponseModel response = api.users.blankCredentialsPasswordRegistrationResponseSpec(registrationData);
-
-        assertThat(response.getUsername().get(0))
-                .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
-        assertThat(response.getPassword().get(0))
-                .isEqualTo(REGISTRATION_BLANK_ERROR);
+        step("Проверяем ошибки для логина и пароля", () -> {
+            assertThat(response.getUsername()).containsExactly(REGISTRATION_FIELD_IS_NULL_ERROR);
+            assertThat(response.getPassword()).containsExactly(REGISTRATION_BLANK_ERROR);
+        });
     }
 
     @Test
     public void registrationFieldsIsNull() {
+        RegistrationBodyModel registrationData = new RegistrationBodyModel(null, null);
 
-        RegistrationBodyModel registrationData =
-                new RegistrationBodyModel(null, null);
+        BlankCredentialsResponseModel response =
+                step("Регистрируемся с null в логине и пароле", () ->
+                        api.users.fieldsIsNullRegistrationResponseSpec(registrationData));
 
-        BlankCredentialsResponseModel response = api.users.fieldsIsNullRegistrationResponseSpec(registrationData);
-
-        assertThat(response.getUsername().get(0))
-                .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
-        assertThat(response.getPassword().get(0))
-                .isEqualTo(REGISTRATION_FIELD_IS_NULL_ERROR);
+        step("Проверяем ошибки «поле не может быть null» для логина и пароля", () -> {
+            assertThat(response.getUsername()).containsExactly(REGISTRATION_FIELD_IS_NULL_ERROR);
+            assertThat(response.getPassword()).containsExactly(REGISTRATION_FIELD_IS_NULL_ERROR);
+        });
     }
-
 }
