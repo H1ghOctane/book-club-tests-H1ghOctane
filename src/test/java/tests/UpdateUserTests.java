@@ -1,10 +1,6 @@
 package tests;
 
-import models.user.AuthorizedUserModel;
-import models.user.UnauthorizedUserResponseModel;
-import models.user.UpdateUserBodyModel;
-import models.user.UpdateUserErrorResponseModel;
-import models.user.UserResponseModel;
+import models.user.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
