@@ -1,8 +1,6 @@
 package tests;
 
-import models.login.LoginBodyModel;
-import models.registration.RegistrationBodyModel;
-import models.registration.SuccessfulRegistrationResponseModel;
+import models.user.AuthorizedUserModel;
 import models.user.UnauthorizedUserResponseModel;
 import models.user.UpdateUserBodyModel;
 import models.user.UpdateUserErrorResponseModel;
@@ -23,18 +21,13 @@ public class UpdateUserTests extends TestBase {
 
     @BeforeEach
     public void createUserAndLogin() {
+        // каждый тест работает со своим свежим пользователем, чтобы не портить общий аккаунт
+        AuthorizedUserModel user = api.registerAndLogin();
 
-        username = "user_" + System.currentTimeMillis();
-        String password = "pass_" + System.currentTimeMillis();
+        userId = user.getId();
+        username = user.getUsername();
+        accessToken = user.getAccessToken();
         email = username + "@example.com";
-
-        SuccessfulRegistrationResponseModel registrationResponse =
-                step("Регистрируем нового пользователя", () ->
-                        api.users.register(new RegistrationBodyModel(username, password)));
-        userId = registrationResponse.id();
-
-        accessToken = step("Авторизуемся и получаем access-токен", () ->
-                api.auth.login(new LoginBodyModel(username, password)).access());
     }
 
     @Test

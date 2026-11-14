@@ -23,4 +23,51 @@ public class ClubsSpec {
             .expectBody("count", greaterThanOrEqualTo(0))
             .expectBody("results", notNullValue())
             .build();
+
+    // 200: GET / PUT / PATCH одного клуба
+    public static ResponseSpecification successfulClubResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(200)
+            .expectBody(matchesJsonSchemaInClasspath("schemas/clubs/club_response_schema.json"))
+            .expectBody("id", notNullValue())
+            .build();
+
+    // 201: клуб создан
+    public static ResponseSpecification createdClubResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(201)
+            .expectBody(matchesJsonSchemaInClasspath("schemas/clubs/club_response_schema.json"))
+            .expectBody("id", notNullValue())
+            .build();
+
+    // 204: клуб удалён, тела ответа нет
+    public static ResponseSpecification deletedClubResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(204)
+            .build();
+
+    // 400: ошибка валидации полей
+    public static ResponseSpecification validationErrorClubResponseSpec = new ResponseSpecBuilder()
+            .log(ALL)
+            .expectStatusCode(400)
+            .expectBody(matchesJsonSchemaInClasspath("schemas/clubs/club_validation_error_schema.json"))
+            .build();
+
+    // 401: нет авторизации
+    public static ResponseSpecification unauthorizedClubResponseSpec = errorSpec(401);
+
+    // 403: нет прав (клуб чужой)
+    public static ResponseSpecification forbiddenClubResponseSpec = errorSpec(403);
+
+    // 404: клуб не найден
+    public static ResponseSpecification notFoundClubResponseSpec = errorSpec(404);
+
+    private static ResponseSpecification errorSpec(int statusCode) {
+        return new ResponseSpecBuilder()
+                .log(ALL)
+                .expectStatusCode(statusCode)
+                .expectBody(matchesJsonSchemaInClasspath("schemas/clubs/club_error_response_schema.json"))
+                .expectBody("detail", notNullValue())
+                .build();
+    }
 }

@@ -30,5 +30,10 @@ public class TestData {
     public static final String UPDATE_NOT_AUTHENTICATED_ERROR = "Authentication credentials were not provided.";
     public static final String UPDATE_INVALID_TOKEN_ERROR = "Given token not valid for any token type";
     public static final String UPDATE_TOKEN_NOT_VALID_CODE = "token_not_valid";
+    public static final int CLUB_NOT_EXISTING_ID = 999_999_999;
+    public static final String CLUB_UPDATED_DESCRIPTION = "Обновлённое описание клуба";
+    public static final String CLUB_BLANK_FIELD_ERROR = "This field may not be blank.";
+    public static final String CLUB_NOT_AUTHENTICATED_ERROR = "Authentication credentials were not provided.";
+    public static final String CLUB_FORBIDDEN_ERROR = "You do not have permission to perform this action.";
 }
 
